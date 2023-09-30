@@ -7,16 +7,23 @@ import { useParams } from "react-router-dom";
 import { useEffect } from "react";
 import { productData } from "../static/data";
 import SuggestedProduct from "../components/Products/SuggestedProduct";
+import { useSelector } from "react-redux";
 
 const ProductDetailPage = () => {
-  const { name } = useParams();
+  const { allProducts } = useSelector((state) => state.products);
+  // const { allEvents } = useSelector((state) => state.events);
+  const { id } = useParams();
   const [data, setData] = useState(null);
-  const productName = name.replace(/-/g, " ");
 
   useEffect(() => {
-    const data = productData.find((i) => i.name === productName);
+    // if (eventData !== null) {
+    //   const data = allEvents && allEvents.find((i) => i._id === id);
+    //   setData(data);
+    // } else {
+    const data = allProducts && allProducts.find((i) => i._id === id);
     setData(data);
-  }, []);
+    // }
+  }, [allProducts]);
 
   return (
     <div>

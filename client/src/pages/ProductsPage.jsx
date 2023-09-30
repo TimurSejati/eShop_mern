@@ -11,21 +11,23 @@ import { productData } from "../static/data";
 const ProductsPage = () => {
   const [searchParams] = useSearchParams();
   const categoryData = searchParams.get("category");
-  // const { allProducts, isLoading } = useSelector((state) => state.products);
+  const { allProducts } = useSelector((state) => state.products);
   const [data, setData] = useState([]);
 
   useEffect(() => {
     if (categoryData === null) {
+      // Sorting without modifying the original array
       const d =
-        productData && productData.sort((a, b) => a.total_sell - b.total_sell);
+        allProducts && [...allProducts].sort((a, b) => a.sold_out - b.sold_out);
       setData(d);
     } else {
+      // Filtering without modifying the original array
       const d =
-        productData && productData.filter((i) => i.category === categoryData);
+        allProducts && allProducts.filter((i) => i.category === categoryData);
       setData(d);
     }
     //    window.scrollTo(0,0);
-  }, [categoryData]);
+  }, [allProducts, categoryData]);
 
   return (
     <>

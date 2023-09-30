@@ -8,8 +8,12 @@ import {
   AiOutlineMessage,
 } from "react-icons/ai";
 import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { backend_url } from "../../server";
 
 const ProductDetail = ({ data }) => {
+  const { user, isAuthenticated } = useSelector((state) => state.user);
+  const { products } = useSelector((state) => state.products);
   const [count, setCount] = useState(1);
   const [click, setClick] = useState(false);
   const [select, setSelect] = useState(0);
@@ -28,6 +32,48 @@ const ProductDetail = ({ data }) => {
     setCount(count + 1);
   };
 
+  const totalReviewsLength = products
+    ? products.reduce((acc, product) => {
+        if (product.reviews) {
+          return acc + product.reviews.length;
+        }
+        return acc;
+      }, 0)
+    : 0;
+
+  const totalRatings =
+    products &&
+    products.reduce((acc, product) => {
+      if (product.reviews) {
+        return (
+          acc +
+          product.reviews.reduce((sum, review) => {
+            if (review.rating !== undefined) {
+              return sum + review.rating;
+            }
+            return sum;
+          }, 0)
+        );
+      }
+      return acc;
+    }, 0);
+
+  // const totalReviewsLength = products
+  //   ? products.reduce((acc, product) => acc + product.reviews?.length, 0)
+  //   : 0;
+
+  // const totalRatings =
+  //   products &&
+  //   products.reduce(
+  //     (acc, product) =>
+  //       acc + product.reviews.reduce((sum, review) => sum + review.rating, 0),
+  //     0
+  //   );
+
+  const avg = totalRatings / totalReviewsLength || 0;
+
+  const averageRating = avg.toFixed(2);
+
   return (
     <div className="bg-white">
       {data ? (
@@ -36,35 +82,42 @@ const ProductDetail = ({ data }) => {
             <div className="block w-full 800px:flex">
               <div className="w-full 800px:w-[50%]">
                 <img
-                  src={data.image_Url[select].url}
+                  src={`${backend_url}${data && data.images[select]}`}
                   alt=""
                   className="w-[80%]"
                 />
+                {/* <img
+                  src={`${data && data.images[select]?.url}`}
+                  alt=""
+                  className="w-[80%]"
+                /> */}
                 <div className="flex w-full">
+                  {data &&
+                    data.images.map((i, index) => (
+                      <div
+                        className={`${
+                          select === 0 ? "border" : "null"
+                        } cursor-pointer`}
+                      >
+                        <img
+                          src={`${backend_url}${i}`}
+                          alt=""
+                          className="h-[200px] overflow-hidden mr-3 mt-3"
+                          onClick={() => setSelect(index)}
+                        />
+                        {/* <img
+                          src={`${i?.url}`}
+                          alt=""
+                          className="h-[200px] overflow-hidden mr-3 mt-3"
+                          onClick={() => setSelect(index)}
+                        /> */}
+                      </div>
+                    ))}
                   <div
                     className={`${
-                      select === 0 ? "border" : null
+                      select === 1 ? "border" : "null"
                     } cursor-pointer`}
-                  >
-                    <img
-                      src={data?.image_Url[0].url}
-                      alt=""
-                      className="h-[200px]"
-                      onClick={() => setSelect(0)}
-                    />
-                  </div>
-                  <div
-                    className={`${
-                      select === 1 ? "border" : null
-                    } cursor-pointer`}
-                  >
-                    <img
-                      src={data?.image_Url[0].url}
-                      alt=""
-                      className="h-[200px]"
-                      onClick={() => setSelect(0)}
-                    />
-                  </div>
+                  ></div>
                 </div>
               </div>
               <div className="w-full 800px:w-[50%] pt-5">
@@ -72,10 +125,10 @@ const ProductDetail = ({ data }) => {
                 <p>{data.description}</p>
                 <div className="flex pt-3">
                   <h4 className={`${styles.productDiscountPrice}`}>
-                    {data.discount_price}$
+                    {data.discountPrice}$
                   </h4>
                   <h3 className={`${styles.price}`}>
-                    {data.price ? data.price + "$" : null}
+                    {data.originalPrice ? data.originalPrice + "$" : null}
                   </h3>
                 </div>
 
@@ -127,20 +180,28 @@ const ProductDetail = ({ data }) => {
                 </div>
 
                 <div className="flex items-center pt-8">
-                  <img
-                    src={data.shop.shop_avatar.url}
-                    alt=""
-                    className="w-[50px] h-[50px] rounded-full mr-2"
-                  />
+                  <Link to={`/shop/preview/${data?.shop._id}`}>
+                    <img
+                      src={`${backend_url}${data?.shop?.avatar}`}
+                      alt=""
+                      className="w-[50px] h-[50px] rounded-full mr-2"
+                    />
+                    {/* <img
+                      src={`${data?.shop?.avatar?.url}`}
+                      alt=""
+                      className="w-[50px] h-[50px] rounded-full mr-2"
+                    /> */}
+                  </Link>
                   <div className="pr-8">
-                    <h3 className={`${styles.shop_name} pb-1 pt-1`}>
-                      {data.shop.name}
-                    </h3>
+                    <Link to={`/shop/preview/${data?.shop._id}`}>
+                      <h3 className={`${styles.shop_name} pb-1 pt-1`}>
+                        {data.shop.name}
+                      </h3>
+                    </Link>
                     <h5 className="pb-3 text-[15px]">
-                      ({data.shop.ratings}) Ratings
+                      ({averageRating}/5) Ratings
                     </h5>
                   </div>
-
                   <div
                     className={`${styles.button} bg-[#6443d1] mt-4 !rounded !h-11`}
                     onClick={handleMessageSubmit}
@@ -154,7 +215,12 @@ const ProductDetail = ({ data }) => {
             </div>
           </div>
 
-          <ProductDetailsInfo data={data} />
+          <ProductDetailsInfo
+            data={data}
+            products={products}
+            totalReviewsLength={totalReviewsLength}
+            averageRating={averageRating}
+          />
           <br />
           <br />
         </div>
@@ -163,7 +229,12 @@ const ProductDetail = ({ data }) => {
   );
 };
 
-const ProductDetailsInfo = ({ data }) => {
+const ProductDetailsInfo = ({
+  data,
+  products,
+  totalReviewsLength,
+  averageRating,
+}) => {
   const [active, setActive] = useState(1);
 
   return (
@@ -212,37 +283,7 @@ const ProductDetailsInfo = ({ data }) => {
       {active === 1 ? (
         <>
           <p className="py-2 text-[18px] leading-8 pb-10 whitespace-pre-line">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Enim
-            voluptatibus consequatur accusantium quos, ipsum quo officia
-            distinctio perspiciatis corrupti doloribus? Lorem ipsum dolor sit
-            amet consectetur adipisicing elit. Recusandae optio sint ea
-            doloremque odit dolores delectus, impedit et accusantium nobis.
-            Nobis nisi perspiciatis distinctio cupiditate iure expedita, ipsum
-            libero minima quaerat sequi amet praesentium id labore. Natus earum
-            veniam deleniti numquam suscipit perspiciatis, reiciendis dolorum ex
-            commodi tenetur corrupti itaque!
-          </p>
-          <p className="py-2 text-[18px] leading-8 pb-10 whitespace-pre-line">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Enim
-            voluptatibus consequatur accusantium quos, ipsum quo officia
-            distinctio perspiciatis corrupti doloribus? Lorem ipsum dolor sit
-            amet consectetur adipisicing elit. Recusandae optio sint ea
-            doloremque odit dolores delectus, impedit et accusantium nobis.
-            Nobis nisi perspiciatis distinctio cupiditate iure expedita, ipsum
-            libero minima quaerat sequi amet praesentium id labore. Natus earum
-            veniam deleniti numquam suscipit perspiciatis, reiciendis dolorum ex
-            commodi tenetur corrupti itaque!
-          </p>
-          <p className="py-2 text-[18px] leading-8 pb-10 whitespace-pre-line">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Enim
-            voluptatibus consequatur accusantium quos, ipsum quo officia
-            distinctio perspiciatis corrupti doloribus? Lorem ipsum dolor sit
-            amet consectetur adipisicing elit. Recusandae optio sint ea
-            doloremque odit dolores delectus, impedit et accusantium nobis.
-            Nobis nisi perspiciatis distinctio cupiditate iure expedita, ipsum
-            libero minima quaerat sequi amet praesentium id labore. Natus earum
-            veniam deleniti numquam suscipit perspiciatis, reiciendis dolorum ex
-            commodi tenetur corrupti itaque!
+            {data.description}
           </p>
         </>
       ) : null}
@@ -256,52 +297,58 @@ const ProductDetailsInfo = ({ data }) => {
       ) : null}
 
       {active === 3 && (
-        <>
-          <div className="block w-full p-5 800px:flex">
-            <div className="w-full 800px:w-[50%]">
+        <div className="block w-full p-5 800px:flex">
+          <div className="w-full 800px:w-[50%]">
+            <Link to={`/shop/preview/${data.shop._id}`}>
               <div className="flex items-center">
                 <img
-                  src={data.shop.shop_avatar.url}
-                  alt=""
+                  src={`${backend_url}${data?.shop?.avatar}`}
                   className="w-[50px] h-[50px] rounded-full"
+                  alt=""
                 />
+                {/* <img
+                  src={`${data?.shop?.avatar?.url}`}
+                  className="w-[50px] h-[50px] rounded-full"
+                  alt=""
+                /> */}
                 <div className="pl-3">
                   <h3 className={`${styles.shop_name}`}>{data.shop.name}</h3>
                   <h5 className="pb-2 text-[15px]">
-                    ({data.shop.ratings}) Ratings
+                    ({averageRating}/5) Ratings
                   </h5>
                 </div>
               </div>
-              <p className="pt-2">
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Natus
-                optio eius consequatur illum, earum eligendi reprehenderit
-                mollitia excepturi atque totam deleniti voluptas corporis
-                aliquam consectetur enim dolor similique voluptate placeat
-                magnam autem expedita quos facilis.
-              </p>
-            </div>
-            <div className="w-full 800px:w-[50%] mt-5 800px:mt-0 800px:flex flex-col items-end">
-              <div className="text-left">
-                <h5 className="font-[600]">
-                  Joined on: <span>18 September 2023</span>
-                </h5>
-                <h5 className="font-[600] pt-3">
-                  Total Products: <span>1,223</span>
-                </h5>
-                <h5 className="font-[600] pt-3">
-                  Total Reviews: <span>312</span>
-                </h5>
-                <Link to="/">
-                  <div
-                    className={`${styles.button} !rounded-[4px] !h-[39.5px] mt-3`}
-                  >
-                    <h4 className="text-white">Visit Shop</h4>
-                  </div>
-                </Link>
-              </div>
+            </Link>
+            <p className="pt-2">{data.shop.description}</p>
+          </div>
+          <div className="w-full 800px:w-[50%] mt-5 800px:mt-0 800px:flex flex-col items-end">
+            <div className="text-left">
+              <h5 className="font-[600]">
+                Joined on:{" "}
+                <span className="font-[500]">
+                  {data.shop?.createdAt?.slice(0, 10)}
+                </span>
+              </h5>
+              <h5 className="font-[600] pt-3">
+                Total Products:{" "}
+                <span className="font-[500]">
+                  {products && products.length}
+                </span>
+              </h5>
+              <h5 className="font-[600] pt-3">
+                Total Reviews:{" "}
+                <span className="font-[500]">{totalReviewsLength}</span>
+              </h5>
+              <Link to="/">
+                <div
+                  className={`${styles.button} !rounded-[4px] !h-[39.5px] mt-3`}
+                >
+                  <h4 className="text-white">Visit Shop</h4>
+                </div>
+              </Link>
             </div>
           </div>
-        </>
+        </div>
       )}
     </div>
   );

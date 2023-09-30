@@ -21,6 +21,8 @@ import { RxCross1 } from "react-icons/rx";
 
 const Header = ({ activeHeading }) => {
   const { isAuthenticated, user, loading } = useSelector((state) => state.user);
+  const { allProducts } = useSelector((state) => state.products);
+
   const [searchTerm, setSearchTerm] = useState("");
   const [searchData, setSetsearchData] = useState(null);
   const [active, setActive] = useState(false);
@@ -34,8 +36,8 @@ const Header = ({ activeHeading }) => {
     setSearchTerm(term);
 
     const filteredProducts =
-      productData &&
-      productData.filter((product) =>
+      allProducts &&
+      allProducts.filter((product) =>
         product.name.toLowerCase().includes(term.toLowerCase())
       );
     setSetsearchData(filteredProducts);
@@ -77,16 +79,21 @@ const Header = ({ activeHeading }) => {
                   className="absolute right-2 top-1.5 cursor-pointer"
                 />
                 {searchData && searchData.length !== 0 ? (
-                  <div className="absolute min-h-[30vh] bg-slate-50 shadow-sm-2 z-[9] p-4">
+                  <div className="absolute w-full bg-slate-50 shadow-sm-2 z-[9] p-4">
                     {searchData &&
                       searchData.map((i, index) => {
                         const d = i.name;
                         const product_name = d.replace(/\s+/g, "-");
                         return (
-                          <Link to={`/product/${product_name}`}>
+                          <Link to={`/product/${i._id}`}>
                             <div className="flex w-full items-start-py-3">
-                              <img
+                              {/* <img
                                 src={i.image_Url[0].url}
+                                alt=""
+                                className="w-[40x] h-[40px] mr-[10px]"
+                              /> */}
+                              <img
+                                src={`${backend_url}${i.images && i.images[0]}`}
                                 alt=""
                                 className="w-[40x] h-[40px] mr-[10px]"
                               />
