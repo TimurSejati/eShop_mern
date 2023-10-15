@@ -8,10 +8,20 @@ import {
   AiOutlineMessage,
 } from "react-icons/ai";
 import { Link } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { backend_url } from "../../server";
+import { useEffect } from "react";
+import {
+  addToWishlist,
+  removeFromWishlist,
+} from "../../redux/actions/wishlist";
+import { toast } from "react-toastify";
+import { addTocart } from "../../redux/actions/cart";
+import { getAllProducts } from "../../redux/actions/product";
 
 const ProductDetail = ({ data }) => {
+  const { wishlist } = useSelector((state) => state.wishlist);
+  const { cart } = useSelector((state) => state.cart);
   const { user, isAuthenticated } = useSelector((state) => state.user);
   const { products } = useSelector((state) => state.products);
   const [count, setCount] = useState(1);
@@ -19,8 +29,39 @@ const ProductDetail = ({ data }) => {
   const [select, setSelect] = useState(0);
   const navigate = useNavigate();
 
-  const handleMessageSubmit = () => {
-    navigate("/inbox?coversation=");
+  const dispatch = useDispatch();
+  useEffect(() => {
+    dispatch(getAllProducts(data && data?.shop._id));
+    if (wishlist && wishlist.find((i) => i._id === data?._id)) {
+      setClick(true);
+    } else {
+      setClick(false);
+    }
+  }, [data, wishlist]);
+
+  const removeFromWishlistHandler = (data) => {
+    setClick(!click);
+    dispatch(removeFromWishlist(data));
+  };
+
+  const addToWishlistHandler = (data) => {
+    setClick(!click);
+    dispatch(addToWishlist(data));
+  };
+
+  const addToCartHandler = (id) => {
+    const isItemExist = cart && cart.find((i) => i._id === id);
+    if (isItemExist) {
+      toast.error("Item already exists");
+    } else {
+      if (data.stock < 1) {
+        toast.error("Product stock limited!");
+      } else {
+        const cartData = { ...data, qty: count };
+        dispatch(addTocart(cartData));
+        toast.success("Item added to cart successfully");
+      }
+    }
   };
 
   const decrementCount = () => {
@@ -30,6 +71,10 @@ const ProductDetail = ({ data }) => {
   };
   const incrementCount = () => {
     setCount(count + 1);
+  };
+
+  const handleMessageSubmit = () => {
+    navigate("/inbox?coversation=");
   };
 
   const totalReviewsLength = products
@@ -155,7 +200,7 @@ const ProductDetail = ({ data }) => {
                       <AiFillHeart
                         size={30}
                         className="cursor-pointer right-2 top-5"
-                        onClick={() => setClick(!click)}
+                        onClick={() => removeFromWishlistHandler(data)}
                         color={click ? "red" : "#333"}
                         title="Remove from Wishlist"
                       />
@@ -163,7 +208,7 @@ const ProductDetail = ({ data }) => {
                       <AiOutlineHeart
                         size={30}
                         className="cursor-pointer right-2 top-5"
-                        onClick={() => setClick(!click)}
+                        onClick={() => addToWishlistHandler(data)}
                         color={click ? "red" : "#333"}
                         title="Add to Wishlist"
                       />
@@ -173,6 +218,7 @@ const ProductDetail = ({ data }) => {
 
                 <div
                   className={`${styles.button} mt-6 !rounded !h-11 flex items-center`}
+                  onClick={() => addToCartHandler(data._id)}
                 >
                   <span className="flex items-center text-white">
                     Add to Cart <AiOutlineShoppingCart className="ml-1" />

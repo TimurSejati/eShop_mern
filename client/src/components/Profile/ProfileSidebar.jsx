@@ -1,11 +1,8 @@
 import React from "react";
 import { RxPerson } from "react-icons/rx";
 import { HiOutlineShoppingBag, HiOutlineReceiptRefund } from "react-icons/hi";
-import {
-  AiOutlineMessage,
-  AiOutlineCreditCard,
-  AiOutlineLogin,
-} from "react-icons/ai";
+import { AiOutlineMessage, AiOutlineLogin } from "react-icons/ai";
+import { RiLockPasswordLine } from "react-icons/ri";
 import { MdOutlineTrackChanges } from "react-icons/md";
 import { TbAddressBook } from "react-icons/tb";
 import { useNavigate } from "react-router-dom";
@@ -100,13 +97,13 @@ const ProfileSidebar = ({ active, setActive }) => {
         className="flex items-center w-full mb-8 cursor-pointer"
         onClick={() => setActive(6)}
       >
-        <AiOutlineCreditCard size={20} color={active === 6 ? "red" : ""} />
+        <RiLockPasswordLine size={20} color={active === 6 ? "red" : ""} />
         <span
           className={`pl-3 ${
             active === 6 ? "text-[red]" : ""
           } 800px:block hidden`}
         >
-          Payment Methods
+          Change Password
         </span>
       </div>
       <div
