@@ -20,6 +20,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { addTocart } from "../../../redux/actions/cart";
 import { toast } from "react-toastify";
+import Ratings from "../../Products/Ratings";
 
 const ProductCard = ({ data }) => {
   const { wishlist } = useSelector((state) => state.wishlist);
@@ -92,31 +93,7 @@ const ProductCard = ({ data }) => {
           </h4>
 
           <div className="flex">
-            <AiFillStar
-              className="mr-2 cursor-pointer"
-              color="#F6BA00"
-              size={20}
-            />
-            <AiFillStar
-              className="mr-2 cursor-pointer"
-              color="#F6BA00"
-              size={20}
-            />
-            <AiFillStar
-              className="mr-2 cursor-pointer"
-              color="#F6BA00"
-              size={20}
-            />
-            <AiFillStar
-              className="mr-2 cursor-pointer"
-              color="#F6BA00"
-              size={20}
-            />
-            <AiOutlineStar
-              className="mr-2 cursor-pointer"
-              color="#F6BA00"
-              size={20}
-            />
+            <Ratings rating={data?.ratings} />
           </div>
 
           <div className="flex items-center justify-between py-2">

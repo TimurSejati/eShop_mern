@@ -129,7 +129,7 @@ const DashboardSideBar = ({ active }) => {
       </div>
 
       <div className="flex items-center w-full p-4">
-        <Link to="/dashboard-message" className="flex items-center w-full">
+        <Link to="/dashboard-messages" className="flex items-center w-full">
           <BiMessageSquareDetail
             size={30}
             color={`${active === 8 ? "crimson" : "#555"}`}
@@ -161,7 +161,7 @@ const DashboardSideBar = ({ active }) => {
       </div>
 
       <div className="flex items-center w-full p-4">
-        <Link to="/dashboard-coupons" className="flex items-center w-full">
+        <Link to="/dashboard-refunds" className="flex items-center w-full">
           <HiOutlineReceiptRefund
             size={30}
             color={`${active === 10 ? "crimson" : "#555"}`}
@@ -177,7 +177,7 @@ const DashboardSideBar = ({ active }) => {
       </div>
 
       <div className="flex items-center w-full p-4">
-        <Link to="/dashboard-settings" className="flex items-center w-full">
+        <Link to="/settings" className="flex items-center w-full">
           <CiSettings
             size={30}
             color={`${active === 11 ? "crimson" : "#555"}`}

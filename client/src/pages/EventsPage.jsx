@@ -1,7 +1,7 @@
 import React from "react";
 import { useSelector } from "react-redux";
 import Header from "../components/Layout/Header";
-import EventCard from "../components/Route/Events/EventCard";
+import EventCard from "../components/Events/EventCard";
 import Loader from "../components/Layout/Loader";
 
 const EventsPage = () => {

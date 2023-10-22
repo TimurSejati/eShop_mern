@@ -6,6 +6,12 @@ import ShopCreateEvents from "../../src/pages/Shop/ShopCreateEvents";
 import ShopAllEvents from "../../src/pages/Shop/ShopAllEvents";
 import ShopAllCoupons from "../../src/pages/Shop/ShopAllCoupons";
 import ShopPreviewPage from "../../src/pages/Shop/ShopPreviewPage";
+import ShopAllOrders from "../../src/pages/Shop/ShopAllOrders";
+import ShopOrderDetail from "../../src/pages/Shop/ShopOrderDetail";
+import ShopAllRefunds from "../../src/pages/Shop/ShopAllRefunds";
+import ShopSettingsPage from "../../src/pages/Shop/ShopSettingsPage";
+import ShopWithDrawMoneyPage from "../../src/pages/Shop/ShopWithDrawMoneyPage";
+import ShopInboxPage from "../../src/pages/Shop/ShopInboxPage";
 
 export {
   ShopHomePage,
@@ -16,4 +22,10 @@ export {
   ShopAllEvents,
   ShopAllCoupons,
   ShopPreviewPage,
+  ShopAllOrders,
+  ShopOrderDetail,
+  ShopAllRefunds,
+  ShopSettingsPage,
+  ShopWithDrawMoneyPage,
+  ShopInboxPage,
 };

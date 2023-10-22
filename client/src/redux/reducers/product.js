@@ -13,13 +13,13 @@ export const productReducer = createReducer(initialState, {
     state.product = action.payload;
     state.success = true;
   },
-  productCreateFailed: (state, action) => {
+  productCreateFail: (state, action) => {
     state.isLoading = false;
     state.error = action.payload;
     state.success = false;
   },
 
-  // get all producst of shop
+  // get all products of shop
   getAllProductsShopRequest: (state) => {
     state.isLoading = true;
   },

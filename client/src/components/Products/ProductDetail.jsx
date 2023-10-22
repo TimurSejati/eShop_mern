@@ -9,7 +9,7 @@ import {
 } from "react-icons/ai";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { backend_url } from "../../server";
+import { backend_url, server } from "../../server";
 import { useEffect } from "react";
 import {
   addToWishlist,
@@ -17,7 +17,9 @@ import {
 } from "../../redux/actions/wishlist";
 import { toast } from "react-toastify";
 import { addTocart } from "../../redux/actions/cart";
-import { getAllProducts } from "../../redux/actions/product";
+import { getAllProductsShop } from "../../redux/actions/product";
+import Ratings from "./Ratings";
+import axios from "axios";
 
 const ProductDetail = ({ data }) => {
   const { wishlist } = useSelector((state) => state.wishlist);
@@ -31,7 +33,7 @@ const ProductDetail = ({ data }) => {
 
   const dispatch = useDispatch();
   useEffect(() => {
-    dispatch(getAllProducts(data && data?.shop._id));
+    dispatch(getAllProductsShop(data && data?.shop._id));
     if (wishlist && wishlist.find((i) => i._id === data?._id)) {
       setClick(true);
     } else {
@@ -73,8 +75,26 @@ const ProductDetail = ({ data }) => {
     setCount(count + 1);
   };
 
-  const handleMessageSubmit = () => {
-    navigate("/inbox?coversation=");
+  const handleMessageSubmit = async () => {
+    if (isAuthenticated) {
+      const groupTitle = data._id + user._id;
+      const userId = user._id;
+      const sellerId = data.shop._id;
+      await axios
+        .post(`${server}/conversation/create-new-conversation`, {
+          groupTitle,
+          userId,
+          sellerId,
+        })
+        .then((res) => {
+          navigate(`/inbox?${res.data.conversation._id}`);
+        })
+        .catch((error) => {
+          toast.error(error.response.data.message);
+        });
+    } else {
+      toast.error("Please login to create a conversation");
+    }
   };
 
   const totalReviewsLength = products
@@ -104,7 +124,7 @@ const ProductDetail = ({ data }) => {
     }, 0);
 
   // const totalReviewsLength = products
-  //   ? products.reduce((acc, product) => acc + product.reviews?.length, 0)
+  //   ? products.reduce((acc, product) => acc + product.reviews.length, 0)
   //   : 0;
 
   // const totalRatings =
@@ -335,11 +355,32 @@ const ProductDetailsInfo = ({
       ) : null}
 
       {active === 2 ? (
-        <>
-          <div className="w-full justify-center min-h-[40vh] flex items-center">
-            <p>No Reviews yet!</p>
+        <div className="w-full min-h-[40vh] flex flex-col items-center py-3 overflow-y-scroll">
+          {data &&
+            data.reviews.map((item, index) => (
+              <div className="flex w-full my-2">
+                <img
+                  src={`${backend_url}/${item.user.avatar}`}
+                  // src={`${item.user.avatar?.url}`}
+                  alt=""
+                  className="w-[50px] h-[50px] rounded-full"
+                />
+                <div className="pl-2 ">
+                  <div className="flex items-center w-full">
+                    <h1 className="font-[500] mr-3">{item.user.name}</h1>
+                    <Ratings rating={item?.rating} />
+                  </div>
+                  <p>{item.comment}</p>
+                </div>
+              </div>
+            ))}
+
+          <div className="flex justify-center w-full">
+            {data && data.reviews.length === 0 && (
+              <h5>No Reviews have for this product!</h5>
+            )}
           </div>
-        </>
+        </div>
       ) : null}
 
       {active === 3 && (
