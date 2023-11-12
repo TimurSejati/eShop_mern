@@ -1,19 +1,10 @@
-import React from "react";
-import styles from "../../styles/styles";
-import { productData } from "../../static/data";
-import EventCard from "./EventCard";
+import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
-import { useEffect } from "react";
-import { blueGrey } from "@material-ui/core/colors";
+import styles from "../../styles/styles";
+import EventCard from "./EventCard";
 
 const Events = () => {
   const { allEvents, isLoading } = useSelector((state) => state.events);
-
-  // useEffect(() => {
-  //   const data =
-  //     allEvents && allEvents.find((a, b) => (a.sold_out = b.sold_out));
-  //   console.log(data);
-  // }, [allEvents]);
 
   return (
     <div>
@@ -24,7 +15,10 @@ const Events = () => {
           </div>
 
           <div className="grid w-full">
-            <EventCard data={allEvents && allEvents[0]} />
+            {allEvents.length !== 0 && (
+              <EventCard data={allEvents && allEvents[0]} />
+            )}
+            <h4>{allEvents?.length === 0 && "No Events have!"}</h4>
           </div>
         </div>
       )}

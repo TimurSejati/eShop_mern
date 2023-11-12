@@ -31,7 +31,7 @@ const Header = ({ activeHeading }) => {
   const [active, setActive] = useState(false);
   const [dropDown, setDropDown] = useState(false);
   const [openCart, setOpenCart] = useState(false);
-  const [openWishList, setOpenWishList] = useState(false);
+  const [openWishlist, setOpenWishlist] = useState(false);
   const [open, setOpen] = useState(false);
 
   const handleSearchChange = (e) => {
@@ -159,7 +159,7 @@ const Header = ({ activeHeading }) => {
                 <div className={`${styles.noramlFlex}`}>
                   <div
                     className="relative cursor-pointer mr-[15px]"
-                    onClick={() => setOpenWishList(true)}
+                    onClick={() => setOpenWishlist(true)}
                   >
                     <AiOutlineHeart size={30} color="rgb(255 255 255 / 83%)" />
                     <span className="absolute right-0 top-0 rounded-full bg-[#3bc177] w-4 h-4 top right p-0 m-0 text-white font-mono text-[12px] leading-tight text-center">
@@ -199,8 +199,8 @@ const Header = ({ activeHeading }) => {
                 {openCart ? <Cart setOpenCart={setOpenCart} /> : null}
 
                 {/* WishList Popup */}
-                {openWishList ? (
-                  <WishList setOpenWishList={setOpenWishList} />
+                {openWishlist ? (
+                  <WishList setOpenWishlist={setOpenWishlist} />
                 ) : null}
               </div>
             </div>
@@ -230,7 +230,10 @@ const Header = ({ activeHeading }) => {
                 </Link>
               </div>
               <div>
-                <div className="relative mr-[20px]">
+                <div
+                  className="relative mr-[20px]"
+                  onClick={() => setOpenCart(true)}
+                >
                   <AiOutlineShoppingCart size={30} />
                   <span className="absolute right-0 top-0 rounded-full bg-[#3bc177] w-4 h-4 top right p-0 m-0 text-white font-mono text-[12px] leading-tight text-center">
                     {cart && cart.length}
@@ -238,6 +241,12 @@ const Header = ({ activeHeading }) => {
                 </div>
               </div>
             </div>
+            {openCart ? <Cart setOpenCart={setOpenCart} /> : null}
+
+            {/* wishlist popup */}
+            {openWishlist ? (
+              <WishList setOpenWishlist={setOpenWishlist} />
+            ) : null}
           </div>
 
           {/* header sidebar */}
@@ -248,7 +257,10 @@ const Header = ({ activeHeading }) => {
               <div className="fixed w-[60%] bg-[#fff] h-screen top-0 left-0 z-10 overflow-y-scroll">
                 <div className="flex justify-between w-full pr-3">
                   <div>
-                    <div className="relative mr-[15px]">
+                    <div
+                      className="relative mr-[15px]"
+                      onClick={() => setOpenWishlist(true) || setOpen(false)}
+                    >
                       <AiOutlineHeart size={30} className="mt-5 ml-3" />
                       <span className="absolute right-0 top-0 rounded-full bg-[#3bc177] w-4 h-4 top right p-0 m-0 text-white font-mono text-[12px] leading-tight text-center">
                         {wishlist && wishlist.length}

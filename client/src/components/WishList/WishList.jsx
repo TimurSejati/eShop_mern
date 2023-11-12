@@ -10,7 +10,7 @@ import { removeFromWishlist } from "../../redux/actions/wishlist";
 import { backend_url } from "../../server";
 import { addTocart } from "../../redux/actions/cart";
 
-const WishList = ({ setOpenWishList }) => {
+const WishList = ({ setOpenWishlist }) => {
   const { wishlist } = useSelector((state) => state.wishlist);
   const dispatch = useDispatch();
 
@@ -21,12 +21,12 @@ const WishList = ({ setOpenWishList }) => {
   const addToCartHandler = (data) => {
     const newData = { ...data, qty: 1 };
     dispatch(addTocart(newData));
-    setOpenWishList(false);
+    setOpenWishlist(false);
   };
 
   return (
     <div className="fixed top-0 left-0 w-full bg-[#0000004b] h-screen z-10">
-      <div className="fixed top-0 right-0 min-h-full w-[25%] bg-white flex flex-col justify-between shadow-sm">
+      <div className="fixed top-0 right-0 h-full w-[80%] overflow-y-scroll 800px:w-[25%] bg-white flex flex-col justify-between shadow-sm">
         {wishlist && wishlist.length === 0 ? (
           <>
             <div className="flex items-center justify-center w-full h-screen">
@@ -34,7 +34,7 @@ const WishList = ({ setOpenWishList }) => {
                 <RxCross1
                   size={25}
                   className="cursor-pointer"
-                  onClick={() => setOpenWishList(false)}
+                  onClick={() => setOpenWishlist(false)}
                 />
               </div>
               <h5>Wishlist items is Empty</h5>
@@ -47,7 +47,7 @@ const WishList = ({ setOpenWishList }) => {
                 <RxCross1
                   size={25}
                   className="cursor-pointer"
-                  onClick={() => setOpenWishList(false)}
+                  onClick={() => setOpenWishlist(false)}
                 />
               </div>
               {/* Item length */}
@@ -58,17 +58,18 @@ const WishList = ({ setOpenWishList }) => {
                 </h5>
               </div>
 
-              {/* cart single items */}
+              {/* cart Single Items */}
               <br />
               <div className="w-full border-t">
-                {wishlist.map((i, index) => (
-                  <CartSingle
-                    key={index}
-                    data={i}
-                    removeFromWishlistHandler={removeFromWishlistHandler}
-                    addToCartHandler={addToCartHandler}
-                  />
-                ))}
+                {wishlist &&
+                  wishlist.map((i, index) => (
+                    <CartSingle
+                      key={index}
+                      data={i}
+                      removeFromWishlistHandler={removeFromWishlistHandler}
+                      addToCartHandler={addToCartHandler}
+                    />
+                  ))}
               </div>
             </div>
           </>
