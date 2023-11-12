@@ -1,26 +1,26 @@
-import React from "react";
-import { backend_url, server } from "../../server";
-import { useDispatch, useSelector } from "react-redux";
+import React, { useState } from "react";
 import {
   AiOutlineArrowRight,
   AiOutlineCamera,
   AiOutlineDelete,
 } from "react-icons/ai";
-import { MdOutlineTrackChanges, MdTrackChanges } from "react-icons/md";
+import { useDispatch, useSelector } from "react-redux";
+import { server } from "../../server";
 import styles from "../../styles/styles";
-import { useState } from "react";
-import { Link } from "react-router-dom";
-import { Button } from "@material-ui/core";
 import { DataGrid } from "@material-ui/data-grid";
+import { Button } from "@material-ui/core";
+import { Link } from "react-router-dom";
+import { MdTrackChanges } from "react-icons/md";
 import { RxCross1 } from "react-icons/rx";
-import { Country, State } from "country-state-city";
-import { toast } from "react-toastify";
 import {
   deleteUserAddress,
+  loadUser,
   updatUserAddress,
-  updateUserAddress,
+  updateUserInformation,
 } from "../../redux/actions/user";
+import { Country, State } from "country-state-city";
 import { useEffect } from "react";
+import { toast } from "react-toastify";
 import axios from "axios";
 import { getAllOrdersOfUser } from "../../redux/actions/order";
 
@@ -28,8 +28,9 @@ const ProfileContent = ({ active }) => {
   const { user, error, successMessage } = useSelector((state) => state.user);
   const [name, setName] = useState(user && user.name);
   const [email, setEmail] = useState(user && user.email);
-  const [phoneNumber, setPhoneNumber] = useState();
+  const [phoneNumber, setPhoneNumber] = useState(user && user.phoneNumber);
   const [password, setPassword] = useState("");
+  const [avatar, setAvatar] = useState(null);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -45,6 +46,34 @@ const ProfileContent = ({ active }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    dispatch(updateUserInformation(name, email, phoneNumber, password));
+  };
+
+  const handleImage = async (e) => {
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      if (reader.readyState === 2) {
+        setAvatar(reader.result);
+        axios
+          .put(
+            `${server}/user/update-avatar`,
+            { avatar: reader.result },
+            {
+              withCredentials: true,
+            }
+          )
+          .then((response) => {
+            dispatch(loadUser());
+            toast.success("avatar updated successfully!");
+          })
+          .catch((error) => {
+            toast.error(error);
+          });
+      }
+    };
+
+    reader.readAsDataURL(e.target.files[0]);
   };
 
   return (
@@ -55,12 +84,20 @@ const ProfileContent = ({ active }) => {
           <div className="flex justify-center w-full">
             <div className="relative">
               <img
+                src={`${user?.avatar?.url}`}
                 className="w-[150px] h-[150px] rounded-full object-cover border-[3px] border-[#3ad132]"
-                src={`${backend_url}${user?.avatar}`}
                 alt=""
               />
-              <div className="w-[30px] h-[30px] bg-[#e3e9ee] rounded-full flex items-center justify-center cursor-pointer absolute bottom-[5px] right-[5px]">
-                <AiOutlineCamera />
+              <div className="w-[30px] h-[30px] bg-[#E3E9EE] rounded-full flex items-center justify-center cursor-pointer absolute bottom-[5px] right-[5px]">
+                <input
+                  type="file"
+                  id="image"
+                  className="hidden"
+                  onChange={handleImage}
+                />
+                <label htmlFor="image">
+                  <AiOutlineCamera />
+                </label>
               </div>
             </div>
           </div>
@@ -69,7 +106,7 @@ const ProfileContent = ({ active }) => {
           <div className="w-full px-5">
             <form onSubmit={handleSubmit} aria-required={true}>
               <div className="block w-full pb-3 800px:flex">
-                <div className="w-[100%] 800px:w-[50%]">
+                <div className=" w-[100%] 800px:w-[50%]">
                   <label className="block pb-2">Full Name</label>
                   <input
                     type="text"
@@ -79,19 +116,20 @@ const ProfileContent = ({ active }) => {
                     onChange={(e) => setName(e.target.value)}
                   />
                 </div>
-                <div className="w-[100%] 800px:w-[50%]">
+                <div className=" w-[100%] 800px:w-[50%]">
                   <label className="block pb-2">Email Address</label>
                   <input
                     type="text"
-                    className={`${styles.input} !w-[95%]`}
+                    className={`${styles.input} !w-[95%] mb-1 800px:mb-0`}
                     required
                     value={email}
-                    onChange={(e) => setName(e.target.value)}
+                    onChange={(e) => setEmail(e.target.value)}
                   />
                 </div>
               </div>
+
               <div className="block w-full pb-3 800px:flex">
-                <div className="w-[100%] 800px:w-[50%]">
+                <div className=" w-[100%] 800px:w-[50%]">
                   <label className="block pb-2">Phone Number</label>
                   <input
                     type="number"
@@ -101,23 +139,23 @@ const ProfileContent = ({ active }) => {
                     onChange={(e) => setPhoneNumber(e.target.value)}
                   />
                 </div>
-                <div className="w-[100%] 800px:w-[50%]">
+
+                <div className=" w-[100%] 800px:w-[50%]">
                   <label className="block pb-2">Enter your password</label>
                   <input
                     type="password"
                     className={`${styles.input} !w-[95%] mb-4 800px:mb-0`}
                     required
-                    value={phoneNumber}
+                    value={password}
                     onChange={(e) => setPassword(e.target.value)}
                   />
                 </div>
               </div>
-
               <input
-                type="submit"
-                value="Update"
-                required
                 className={`w-[250px] h-[40px] border border-[#3a24db] text-center text-[#3a24db] rounded-[3px] mt-8 cursor-pointer`}
+                required
+                value="Update"
+                type="submit"
               />
             </form>
           </div>
@@ -131,28 +169,28 @@ const ProfileContent = ({ active }) => {
         </div>
       )}
 
-      {/* refund */}
+      {/* Refund */}
       {active === 3 && (
         <div>
           <AllRefundOrders />
         </div>
       )}
 
-      {/* track order */}
+      {/* Track order */}
       {active === 5 && (
         <div>
           <TrackOrder />
         </div>
       )}
 
-      {/* payment */}
+      {/* Change Password */}
       {active === 6 && (
         <div>
           <ChangePassword />
         </div>
       )}
 
-      {/* user address */}
+      {/*  user Address */}
       {active === 7 && (
         <div>
           <Address />
@@ -431,11 +469,7 @@ const ChangePassword = () => {
     await axios
       .put(
         `${server}/user/update-user-password`,
-        {
-          oldPassword,
-          newPassword,
-          confirmPassword,
-        },
+        { oldPassword, newPassword, confirmPassword },
         { withCredentials: true }
       )
       .then((res) => {
@@ -444,11 +478,10 @@ const ChangePassword = () => {
         setNewPassword("");
         setConfirmPassword("");
       })
-      .catch((err) => {
-        toast.error(err.response.data.message);
+      .catch((error) => {
+        toast.error(error.response.data.message);
       });
   };
-
   return (
     <div className="w-full px-5">
       <h1 className="block text-[25px] text-center font-[600] text-[#000000ba] pb-2">
@@ -460,40 +493,40 @@ const ChangePassword = () => {
           onSubmit={passwordChangeHandler}
           className="flex flex-col items-center"
         >
-          <div className="w-[100%] 800px:w-[50%] mt-5">
+          <div className=" w-[100%] 800px:w-[50%] mt-5">
             <label className="block pb-2">Enter your old password</label>
             <input
               type="password"
-              className={`${styles.input} !w-[95%]`}
+              className={`${styles.input} !w-[95%] mb-4 800px:mb-0`}
               required
               value={oldPassword}
               onChange={(e) => setOldPassword(e.target.value)}
             />
           </div>
-          <div className="w-[100%] 800px:w-[50%] mt-2">
-            <label className="block pb-2">Enter your password</label>
+          <div className=" w-[100%] 800px:w-[50%] mt-2">
+            <label className="block pb-2">Enter your new password</label>
             <input
               type="password"
-              className={`${styles.input} !w-[95%]`}
+              className={`${styles.input} !w-[95%] mb-4 800px:mb-0`}
               required
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
             />
           </div>
-          <div className="w-[100%] 800px:w-[50%] mt-2">
+          <div className=" w-[100%] 800px:w-[50%] mt-2">
             <label className="block pb-2">Enter your confirm password</label>
             <input
               type="password"
-              className={`${styles.input} !w-[95%]`}
+              className={`${styles.input} !w-[95%] mb-4 800px:mb-0`}
               required
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
             />
             <input
-              type="submit"
-              value="Update"
-              required
               className={`w-[95%] h-[40px] border border-[#3a24db] text-center text-[#3a24db] rounded-[3px] mt-8 cursor-pointer`}
+              required
+              value="Update"
+              type="submit"
             />
           </div>
         </form>
@@ -506,27 +539,33 @@ const Address = () => {
   const [open, setOpen] = useState(false);
   const [country, setCountry] = useState("");
   const [city, setCity] = useState("");
+  const [zipCode, setZipCode] = useState();
   const [address1, setAddress1] = useState("");
   const [address2, setAddress2] = useState("");
-  const [zipCode, setZipCode] = useState("");
   const [addressType, setAddressType] = useState("");
   const { user } = useSelector((state) => state.user);
   const dispatch = useDispatch();
 
   const addressTypeData = [
-    { name: "Default" },
-    { name: "Home" },
-    { name: "Office" },
+    {
+      name: "Default",
+    },
+    {
+      name: "Home",
+    },
+    {
+      name: "Office",
+    },
   ];
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (addressType === "" || country === "" || city === "") {
-      toast.error("Please fill all the fields");
+      toast.error("Please fill all the fields!");
     } else {
       dispatch(
-        updateUserAddress(
+        updatUserAddress(
           country,
           city,
           address1,
@@ -540,19 +579,20 @@ const Address = () => {
       setCity("");
       setAddress1("");
       setAddress2("");
-      setZipCode("");
+      setZipCode(null);
       setAddressType("");
     }
   };
 
   const handleDelete = (item) => {
-    dispatch(deleteUserAddress(item._id));
+    const id = item._id;
+    dispatch(deleteUserAddress(id));
   };
 
   return (
     <div className="w-full px-5">
       {open && (
-        <div className="fixed w-full h-screen bg-[#0000004b] top-0 left-0 flex items-center justify-center">
+        <div className="fixed w-full h-screen bg-[#0000004b] top-0 left-0 flex items-center justify-center ">
           <div className="w-[35%] h-[80vh] bg-white rounded shadow relative overflow-y-scroll">
             <div className="flex justify-end w-full p-3">
               <RxCross1
@@ -577,7 +617,7 @@ const Address = () => {
                       className="w-[95%] border h-[40px] rounded-[5px]"
                     >
                       <option value="" className="block pb-2 border">
-                        Choose your country
+                        choose your country
                       </option>
                       {Country &&
                         Country.getAllCountries().map((item) => (
@@ -593,7 +633,7 @@ const Address = () => {
                   </div>
 
                   <div className="w-full pb-2">
-                    <label className="block pb-2">City</label>
+                    <label className="block pb-2">Choose your City</label>
                     <select
                       name=""
                       id=""
@@ -602,7 +642,7 @@ const Address = () => {
                       className="w-[95%] border h-[40px] rounded-[5px]"
                     >
                       <option value="" className="block pb-2 border">
-                        Choose your city
+                        choose your city
                       </option>
                       {State &&
                         State.getStatesOfCountry(country).map((item) => (
@@ -621,18 +661,17 @@ const Address = () => {
                     <label className="block pb-2">Address 1</label>
                     <input
                       type="address"
-                      className={`${styles.input} !w-[95%]`}
+                      className={`${styles.input}`}
                       required
                       value={address1}
                       onChange={(e) => setAddress1(e.target.value)}
                     />
                   </div>
-
                   <div className="w-full pb-2">
                     <label className="block pb-2">Address 2</label>
                     <input
                       type="address"
-                      className={`${styles.input} !w-[95%]`}
+                      className={`${styles.input}`}
                       required
                       value={address2}
                       onChange={(e) => setAddress2(e.target.value)}
@@ -643,7 +682,7 @@ const Address = () => {
                     <label className="block pb-2">Zip Code</label>
                     <input
                       type="number"
-                      className={`${styles.input} !w-[95%]`}
+                      className={`${styles.input}`}
                       required
                       value={zipCode}
                       onChange={(e) => setZipCode(e.target.value)}
@@ -660,7 +699,7 @@ const Address = () => {
                       className="w-[95%] border h-[40px] rounded-[5px]"
                     >
                       <option value="" className="block pb-2 border">
-                        Choose your address type
+                        Choose your Address Type
                       </option>
                       {addressTypeData &&
                         addressTypeData.map((item) => (
@@ -675,12 +714,12 @@ const Address = () => {
                     </select>
                   </div>
 
-                  <div className="w-full pb-2">
+                  <div className="w-full pb-2 ">
                     <input
                       type="submit"
+                      className={`${styles.input} mt-5 cursor-pointer`}
                       required
                       readOnly
-                      className={`${styles.input} mt-5 cursor-pointer`}
                     />
                   </div>
                 </div>
@@ -689,7 +728,6 @@ const Address = () => {
           </div>
         </div>
       )}
-
       <div className="flex items-center justify-between w-full">
         <h1 className="text-[25px] font-[600] text-[#000000ba] pb-2">
           My Addresses
@@ -705,19 +743,21 @@ const Address = () => {
       {user &&
         user.addresses.map((item, index) => (
           <div
-            className="w-full bg-white h-[70px] rounded-[4px] flex items-center px-3 shadow justify-between pr-10 mb-5"
+            className="w-full bg-white h-min 800px:h-[70px] rounded-[4px] flex items-center px-3 shadow justify-between pr-10 mb-5"
             key={index}
           >
             <div className="flex items-center">
               <h5 className="pl-5 font-[600]">{item.addressType}</h5>
             </div>
             <div className="flex items-center pl-8">
-              <h6>
+              <h6 className="text-[12px] 800px:text-[unset]">
                 {item.address1} {item.address2}
               </h6>
             </div>
             <div className="flex items-center pl-8">
-              <h6>{user && user.phoneNumber}</h6>
+              <h6 className="text-[12px] 800px:text-[unset]">
+                {user && user.phoneNumber}
+              </h6>
             </div>
             <div className="min-w-[10%] flex items-center justify-between pl-8">
               <AiOutlineDelete
@@ -730,12 +770,11 @@ const Address = () => {
         ))}
 
       {user && user.addresses.length === 0 && (
-        <h5 className="text-center pt-5 text-[18px]">
+        <h5 className="text-center pt-8 text-[18px]">
           You not have any saved address!
         </h5>
       )}
     </div>
   );
 };
-
 export default ProfileContent;

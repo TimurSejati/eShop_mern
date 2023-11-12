@@ -1,46 +1,45 @@
-import React, { useState } from "react";
+import { React, useState } from "react";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
-import { RxAvatar } from "react-icons/rx";
 import styles from "../../styles/styles";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { RxAvatar } from "react-icons/rx";
 import axios from "axios";
 import { server } from "../../server";
 import { toast } from "react-toastify";
 
-const Signup = () => {
-  const [name, setName] = useState("");
+const Singup = () => {
   const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [visible, setVisible] = useState(false);
   const [avatar, setAvatar] = useState(null);
-  const navigate = useNavigate();
 
   const handleFileInputChange = (e) => {
-    const file = e.target.files[0];
-    setAvatar(file);
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      if (reader.readyState === 2) {
+        setAvatar(reader.result);
+      }
+    };
+
+    reader.readAsDataURL(e.target.files[0]);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const config = { headers: { "Content-Type": "multipart/form-data" } };
-    const newForm = new FormData();
-    newForm.append("file", avatar);
-    newForm.append("name", name);
-    newForm.append("email", email);
-    newForm.append("password", password);
     axios
-      .post(`${server}/user/create-user`, newForm, config)
+      .post(`${server}/user/create-user`, { name, email, password, avatar })
       .then((res) => {
         toast.success(res.data.message);
         setName("");
         setEmail("");
         setPassword("");
-        setAvatar("");
+        setAvatar();
       })
-      .catch((err) => {
-        console.log(err);
-        toast.error(err.response.data.message);
+      .catch((error) => {
+        toast.error(error.response.data.message);
       });
   };
 
@@ -48,7 +47,7 @@ const Signup = () => {
     <div className="flex flex-col justify-center min-h-screen py-12 bg-gray-50 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <h2 className="mt-6 text-3xl font-extrabold text-center text-gray-900">
-          Register as a New User
+          Register as a new user
         </h2>
       </div>
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
@@ -56,7 +55,7 @@ const Signup = () => {
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
               <label
-                htmlFor="name"
+                htmlFor="email"
                 className="block text-sm font-medium text-gray-700"
               >
                 Full Name
@@ -64,7 +63,7 @@ const Signup = () => {
               <div className="mt-1">
                 <input
                   type="text"
-                  name="name"
+                  name="text"
                   autoComplete="name"
                   required
                   value={name}
@@ -73,12 +72,13 @@ const Signup = () => {
                 />
               </div>
             </div>
+
             <div>
               <label
                 htmlFor="email"
                 className="block text-sm font-medium text-gray-700"
               >
-                Email Address
+                Email address
               </label>
               <div className="mt-1">
                 <input
@@ -92,6 +92,7 @@ const Signup = () => {
                 />
               </div>
             </div>
+
             <div>
               <label
                 htmlFor="password"
@@ -134,7 +135,7 @@ const Signup = () => {
                 <span className="inline-block w-8 h-8 overflow-hidden rounded-full">
                   {avatar ? (
                     <img
-                      src={URL.createObjectURL(avatar)}
+                      src={avatar}
                       alt="avatar"
                       className="object-cover w-full h-full rounded-full"
                     />
@@ -144,7 +145,7 @@ const Signup = () => {
                 </span>
                 <label
                   htmlFor="file-input"
-                  className="flex items-center justify-center px-4 py-2 ml-5 text-sm font-medium text-gray-700 border border-gray-300 rounded-md shadow-sm bh-white hover:bg-gray-500"
+                  className="flex items-center justify-center px-4 py-2 ml-5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50"
                 >
                   <span>Upload a file</span>
                   <input
@@ -180,4 +181,4 @@ const Signup = () => {
   );
 };
 
-export default Signup;
+export default Singup;

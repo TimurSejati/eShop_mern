@@ -7,7 +7,7 @@ export const loadUser = () => async (dispatch) => {
     dispatch({
       type: "LoadUserRequest",
     });
-    const { data } = await axios.get(`${server}/user/getUser`, {
+    const { data } = await axios.get(`${server}/user/getuser`, {
       withCredentials: true,
     });
     dispatch({
@@ -80,7 +80,7 @@ export const updateUserInformation =
   };
 
 // update user address
-export const updateUserAddress =
+export const updatUserAddress =
   (country, city, address1, address2, zipCode, addressType) =>
   async (dispatch) => {
     try {
